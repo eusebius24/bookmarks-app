@@ -7,34 +7,34 @@ const Required = () => (
   <span className='AddBookmark__required'>*</span>
 )
 
-function editBookmarkRequest(bookmark, cb) {
-  const { title, url, description, rating } = bookmark;
-  fetch(config.API_ENDPOINT + `/${bookmark.id}`, {
-    method: 'PATCH',
-    headers: {
-      'content-type': 'application/json',
-    }
-  })
-  .then(res => {
-    if (!res.ok) {
-      return res.json().then(error => Promise.reject(error))
-    }
-    return res.json()
-  })
-  .then(data => {
-    title.value = bookmark.title;
-    url.value = bookmark.url;
-    description.value = bookmark.description;
-    rating.value = bookmark.rating;
-    this.context.editBookmark(data)
-    this.props.history.push('/')
+// function editBookmarkRequest(bookmark, cb) {
+//   const { title, url, description, rating } = bookmark;
+//   fetch(config.API_ENDPOINT + `/${bookmark.id}`, {
+//     method: 'PATCH',
+//     headers: {
+//       'content-type': 'application/json',
+//     }
+//   })
+//   .then(res => {
+//     if (!res.ok) {
+//       return res.json().then(error => Promise.reject(error))
+//     }
+//     return res.json()
+//   })
+//   .then(data => {
+//     title.value = bookmark.title;
+//     url.value = bookmark.url;
+//     description.value = bookmark.description;
+//     rating.value = bookmark.rating;
+//     this.context.editBookmark(data)
+//     this.props.history.push('/')
     
-  })
-  .catch(error => {
-    console.error(error)
-    this.setState({ error })
-  })
-}
+//   })
+//   .catch(error => {
+//     console.error(error)
+//     this.setState({ error })
+//   })
+// }
 
 class EditBookmark extends Component {
   static contextType = BookmarksContext;
@@ -48,6 +48,35 @@ class EditBookmark extends Component {
     description: '',
     rating: 1,
   };
+
+  editBookmarkRequest(bookmark, cb) {
+    const { title, url, description, rating } = bookmark;
+    fetch(config.API_ENDPOINT + `/${bookmark.id}`, {
+      method: 'PATCH',
+      headers: {
+        'content-type': 'application/json',
+      }
+    })
+    .then(res => {
+      if (!res.ok) {
+        return res.json().then(error => Promise.reject(error))
+      }
+      return res.json()
+    })
+    .then(data => {
+      title.value = bookmark.title;
+      url.value = bookmark.url;
+      description.value = bookmark.description;
+      rating.value = bookmark.rating;
+      this.context.editBookmark(data)
+      this.props.history.push('/')
+      
+    })
+    .catch(error => {
+      console.error(error)
+      this.setState({ error })
+    })
+  }
 
   componentDidMount() {
     const { bookmarkId } = this.props.match.params;
@@ -197,7 +226,7 @@ class EditBookmark extends Component {
               Cancel
             </button>
             {' '}
-            <button onClick={!bookmark ? null : editBookmarkRequest(bookmark, this.context.editBookmark)}>
+            <button onClick={!bookmark ? null : this.editBookmarkRequest(bookmark, this.context.editBookmark)}>
               Save
             </button>
           </div>
