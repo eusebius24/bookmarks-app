@@ -30,7 +30,10 @@ function editBookmarkRequest(bookmark, cb) {
     this.props.history.push('/')
     
   })
-  
+  .catch(error => {
+    console.error(error)
+    this.setState({ error })
+  })
 }
 
 class EditBookmark extends Component {
