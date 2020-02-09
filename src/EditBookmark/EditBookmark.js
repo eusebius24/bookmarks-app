@@ -53,8 +53,10 @@ class EditBookmark extends Component {
     const { title, url, description, rating } = bookmark;
     fetch(config.API_ENDPOINT + `/${bookmark.id}`, {
       method: 'PATCH',
+      body: JSON.stringify(bookmark),
       headers: {
         'content-type': 'application/json',
+       
       }
     })
     .then(res => {
