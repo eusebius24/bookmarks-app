@@ -1,5 +1,6 @@
 import React from 'react';
 import BookmarksContext from '../BookmarksContext';
+import config from '../config';
 import './EditBookmark.css';
 
 const Required = () => (
@@ -9,17 +10,57 @@ const Required = () => (
 class EditBookmark extends React.Component {
   static contextType = BookmarksContext;
 
+  state = {
+    error: null,
+    id: '',
+    title: '',
+    url: '',
+    description: '',
+    rating: ''
+  }
+
   handleClickCancel = () => {
     this.props.history.push('/')
   };
 
+  handleOnChangeTitle = e => {
+    this.setState({
+      title: e.target.value
+    })
+  }
+
+  ComponentDidMount() {
+    const { bookmark_id } = this.props.match.params 
+    fetch(config.API_ENDPOINT + `${bookmark_id}`, {
+      method: 'GET',
+    })
+    .then(res => {
+      if(!res.ok) {
+        return res.json().then(error => console.error);
+      }
+      return res.json()
+    })
+      .then(responseData => {
+        this.setState({
+          id: responseData.id,
+          title: responseData.title,
+          url: responseData.url,
+          description: responseData.description,
+          rating: responseData.rating
+        })
+      })
+      .catch(error => {
+        console.error(error)
+        this.setState({ error })
+      })
+  
+  }
   render() {
-    const currentId = this.props.match.params.bookmark_id;
-    const bookmark = this.context.bookmarks[currentId - 1];
+    const { error, title, url, description, rating } = this.state;
     
-    console.log('bookmark:', bookmark);
-    console.log(this.context.bookmarks[currentId - 1].title);
+    
     return (
+    
       <section className="AddBookmark">
         <h2>Edit bookmark</h2>
         <form className="AddBookmark__form">
@@ -36,7 +77,8 @@ class EditBookmark extends React.Component {
                type='text'
                name='title'
                id='title'
-               
+               value={title}
+               onChange = {this.handleOnChangeTitle}
              />
            </div> 
            <div>
@@ -90,6 +132,7 @@ class EditBookmark extends React.Component {
       
 
     );
+      
   }
 
 }
