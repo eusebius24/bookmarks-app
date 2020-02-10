@@ -2,22 +2,36 @@ import React from 'react';
 import BookmarksContext from '../BookmarksContext';
 import config from '../config';
 import './EditBookmark.css';
+import { Route } from 'react-router-dom';
 
 const Required = () => (
   <span className='AddBookmark__required'>*</span>
 )
 
+
 class EditBookmark extends React.Component {
   static contextType = BookmarksContext;
+  constructor(props) {
+    super(props);
 
-  state = {
-    error: null,
-    id: '',
-    title: '',
-    url: '',
-    description: '',
-    rating: ''
+    this.state = {
+      error: null,
+      id: '',
+      title: '',
+      url: '',
+      description: '',
+      rating: ''
+    }
+
+    this.handleClickCancel.bind(this);
+    this.handleOnChangeTitle.bind(this);
+    this.handleOnChangeURL.bind(this);
+    this.handleOnChangeDescription.bind(this);
+    this.handleOnChangeRating.bind(this);
+    this.resetFields.bind(this);
   }
+
+  
 
   handleClickCancel = () => {
     this.props.history.push('/')
@@ -29,18 +43,83 @@ class EditBookmark extends React.Component {
     })
   }
 
-  ComponentDidMount() {
+  handleOnChangeURL = e => {
+    this.setState({
+      url: e.target.value
+    })
+  }
+
+  handleOnChangeDescription = e => {
+    this.setState({
+      description: e.target.value
+    })
+  }
+
+  handleOnChangeRating = e => {
+    this.setState({
+      rating: e.target.value
+    })
+  }
+
+  resetFields = bookmark => {
+    this.setState({
+      id: bookmark.id || '',
+      title: bookmark.title || '',
+      url: bookmark.url || '',
+      description: bookmark.description || '',
+      rating: bookmark.rating || '',
+    })
+  }
+
+  editBookmarkRequest = (e) => {
+    e.preventDefault();
+    const { bookmark_id }= this.props.match.params;
+    console.log(this.state, bookmark_id);
+    
+    const bookmark = {
+      id: bookmark_id,
+      title: this.state.title,
+      url: this.state.url,
+      description: this.state.description,
+      rating: this.state.rating,
+    }
+    fetch(config.API_ENDPOINT + `/${bookmark_id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(bookmark),
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+    .then(res => {
+      if(!res.ok) {
+        return res.json().then(error => console.error);
+      }
+      
+    })
+    .then(() => {
+      console.log("bookmark:", bookmark);
+      // this.resetFields(bookmark)
+      this.context.editBookmark(bookmark)
+      this.props.history.push('/')
+    }
+     
+    )
+  }
+
+  componentDidMount() {
+    console.log('hello');
     const { bookmark_id } = this.props.match.params 
-    fetch(config.API_ENDPOINT + `${bookmark_id}`, {
+    fetch(config.API_ENDPOINT + `/${bookmark_id}`, {
       method: 'GET',
     })
     .then(res => {
       if(!res.ok) {
         return res.json().then(error => console.error);
       }
-      return res.json()
+      return res.json();
     })
       .then(responseData => {
+        console.log('responseData:', responseData);
         this.setState({
           id: responseData.id,
           title: responseData.title,
@@ -56,14 +135,13 @@ class EditBookmark extends React.Component {
   
   }
   render() {
-    const { error, title, url, description, rating } = this.state;
     
-    
+    console.log(this.state.title);
     return (
     
       <section className="AddBookmark">
         <h2>Edit bookmark</h2>
-        <form className="AddBookmark__form">
+        <form className="AddBookmark__form" onSubmit={this.editBookmarkRequest}>
           <div className='AddBookmark__error' role='alert'>
               
             </div>
@@ -77,7 +155,7 @@ class EditBookmark extends React.Component {
                type='text'
                name='title'
                id='title'
-               value={title}
+               value={this.state.title}
                onChange = {this.handleOnChangeTitle}
              />
            </div> 
@@ -91,6 +169,8 @@ class EditBookmark extends React.Component {
                type='url'
                name='url'
                id='url'
+               value={this.state.url}
+               onChange={this.handleOnChangeURL}
              />
            </div> 
            <div>
@@ -100,6 +180,8 @@ class EditBookmark extends React.Component {
             <textarea
               name='description'
               id='description'
+              value={this.state.description}
+              onChange={this.handleOnChangeDescription}
             />
           </div>
           <div>
@@ -112,10 +194,11 @@ class EditBookmark extends React.Component {
               type='number'
               name='rating'
               id='rating'
-              defaultValue='1'
               min='1'
               max='5'
               required
+              value={this.state.rating}
+              onChange={this.handleOnChangeRating}
             />
             </div>
             <div className='AddBookmark__buttons'>

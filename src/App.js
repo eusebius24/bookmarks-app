@@ -63,8 +63,22 @@ class App extends Component {
   }
 
   editBookmark = bookmark => {
+    console.log('bookmark:', bookmark);
+    const editedBookmarks = this.state.bookmarks.map(bm => {
+      if (bm.id === parseInt(bookmark.id)) {
+        bm.title = bookmark.title;
+        bm.url = bookmark.url;
+        bm.description = bookmark.description;
+        bm.rating = bookmark.rating;
+        return bm;
+      } else {
+        return bm;
+      }
+      
+    })
+    console.log('editedBookmarks:', editedBookmarks);
     this.setState({
-      bookmarks: [ ...this.state.bookmarks, bookmark ]
+      bookmarks: editedBookmarks
     })
   }
 
@@ -94,6 +108,7 @@ class App extends Component {
       bookmarks: this.state.bookmarks,
       addBookmark: this.addBookmark,
       deleteBookmark: this.deleteBookmark,
+      editBookmark: this.editBookmark,
     }
     return (
       <main className='App'>
