@@ -1,12 +1,14 @@
 {
     "version": 2,
+    "alias": "my-bookmarks-app",
     "name": "bookmarks-app",
     "routes": [
         {
-            "handle": "filesystem"
+            "src": "^/static/(.*)",
+            "dest": "/static/1"
         },
         {
-            "src": "/.*",
+            "src": ".*",
             "dest": "/index.html"
         }
     ]
